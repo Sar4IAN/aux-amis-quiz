@@ -1050,6 +1050,44 @@ const BANK = [
     ans:[1],
     exp:'異物混入は最も深刻なクレームの一つです。否定・言い訳は絶対NGです。まず謝罪してお皿やグラスを下げ、即座に社員に報告します。その後の対応（作り直し・返金等）は社員が判断します。'
   },
+  // ══════════════════════════════
+  // 追加問題
+  // ══════════════════════════════
+  {
+    cat:'food', catLabel:'料理説明・提案', diff:2, multi:false,
+    q:'お客様がメニューを取った際、必ず行うべき確認として正しいのはどれか？',
+    opts:['ドリンクの注文を先に取る','焼き加減はミディアムレア寄りのミディアムで統一していることを伝え変更希望を確認し、次にアレルギーや召し上がれないものを確認する','アレルギーはメニューに記載があるので特に聞かない','焼き加減は料理が出てくる直前に確認すればよい'],
+    ans:[1],
+    exp:'AUX AMISではメニューをお渡しした際に、①焼き加減（ミディアムレア寄りのミディアムで統一・変更可）と②アレルギー・召し上がれないものの確認が義務です。この2点を聞き忘れることは許されません。'
+  },
+  {
+    cat:'food', catLabel:'料理説明・提案', diff:3, multi:false,
+    q:'事前にお客様から「貝類が苦手」と伺っていました。料理を提供する前に行うべき確認として正しいのはどれか？',
+    opts:['「貝類は使っていないので大丈夫です」とその場で判断して伝える','貝類が含まれるか分からないので何も言わずに提供する','貝類が固形で入っていなければ問題ないと判断する','どの料理に貝類が含まれるか、固形か出汁かも含め、そのお客様の分だけ確認が必要かをキッチンまたは社員に確認する'],
+    ans:[3],
+    exp:'アレルギーや苦手な食材の確認は「固形で入っているか」だけでは不十分です。出汁・ソース・隠し味として使われているケースもあります。どの調理法でもNGなのか、固形だけNGなのかをお客様に確認した上で、キッチンや社員と連携して対応するのが義務です。'
+  },
+  {
+    cat:'ops', catLabel:'オペレーション', diff:1, multi:false,
+    q:'お客様がカトラリー（フォークやナイフ）を床に落としてしまいました。正しい対応はどれか？',
+    opts:['お客様が自分で拾うのを待つ','すぐに駆けつけ怪我がないか確認した上で、スタッフが拾い、新しいカトラリーをお持ちする','落としたカトラリーをナプキンで拭いてお返しする','社員に報告してから動く'],
+    ans:[1],
+    exp:'カトラリーが床に落ちた際は、まず怪我がないかをお客様に確認するのが最初のアクションです。その後スタッフが拾い、新しいカトラリーをすぐにお持ちします。床に落ちたものをそのまま返すのは衛生上絶対NGです。'
+  },
+  {
+    cat:'ops', catLabel:'オペレーション', diff:1, multi:false,
+    q:'スタッフ自身がカトラリーを床に落としてしまいました。正しい対応はどれか？',
+    opts:['お客様が気づいていなければそのままにする','とりあえず拾って元の場所に戻す','「失礼しました」と言い、すぐに拾う','社員に報告してから拾う'],
+    ans:[2],
+    exp:'スタッフが落とした場合は、「失礼しました」とひと言お詫びしてすぐに拾います。お客様が気づいているかどうかに関わらず、対応を怠るのはNGです。素早く丁寧に対処することがプロのサービスです。'
+  },
+  {
+    cat:'ops', catLabel:'オペレーション', diff:2, multi:false,
+    q:'手が空いた時間ができました。一番してはいけないことはどれか？',
+    opts:['フロアを見渡して水補充やパンのおかわりが必要なテーブルを探す','やることを探さず、ただ立っている','他のスタッフの動きを見てフォローできることを探す','グラスや食器の補充・準備をする'],
+    ans:[1],
+    exp:'手が空いた時に一番してはいけないのは「やることを探さないこと」です。接客でも非接客でも、常に何かできることを探す姿勢が求められます。水の補充・パンのおかわり確認・新しいドリンクのご提案など、先手を打つ動きがAUX AMISのサービスを支えます。'
+  },
 
 ];
 
@@ -1079,6 +1117,16 @@ let pool = [], idx = 0, correct = 0, wrong = 0, streak = 0, answered = false, se
 document.getElementById('top-count').textContent = `全 ${BANK.length} 問収録`;
 
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function shuffleOptions(q) {
+  // Create index mapping and shuffle it
+  const indices = q.opts.map((_,i) => i);
+  for(let i=indices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[indices[i],indices[j]]=[indices[j],indices[i]];}
+  // Build new opts array and remap ans
+  const newOpts = indices.map(i => q.opts[i]);
+  const newAns = q.ans.map(a => indices.indexOf(a));
+  return {...q, opts: newOpts, ans: newAns};
+}
 
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => {
@@ -1147,7 +1195,7 @@ function buildPool() {
   let base = BANK;
   if (currentMode === 'cat' && currentFilter !== 'all') base = base.filter(q => q.cat === currentFilter);
   if (currentMode === 'diff' && currentFilter !== 'all') base = base.filter(q => String(q.diff) === currentFilter);
-  pool = shuffle(base);
+  pool = shuffle(base).map(q => shuffleOptions(q));
 }
 
 function bumpChip(id) {
