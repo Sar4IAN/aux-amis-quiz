@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUX AMIS サービス道場</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0a0a0a;
+  --surface:   #111111;
+  --surface2:  #181818;
+  --surface3:  #222222;
+  --border:    #2a2a2a;
+  --border2:   #333333;
+  --text:      #e8e0d0;
+  --text-sub:  #7a7060;
+  --text-dim:  #3a3530;
+  --gold:      #c9a84c;
+  --gold2:     #e8c87a;
+  --gold-dim:  #3a2e18;
+  --gold-pale: #1a1508;
+  --correct:   #4a8c5c;
+  --correct-pale: #0a1f10;
+  --correct-border: #2a5c3a;
+  --wrong:     #8c4a4a;
+  --wrong-pale:#1f0a0a;
+  --wrong-border: #5c2a2a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* grain overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .6;
+}
+
+/* gold line top */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  z-index: 100;
+}
+
+.app {
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 0 20px 100px;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  padding: 32px 0 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  animation: fadeDown .6s ease both;
+}
+
+.brand-block {}
+
+.brand-en {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: .35em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.brand-ja {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text);
+  letter-spacing: .04em;
+  line-height: 1;
+}
+
+.brand-ja span {
+  color: var(--gold);
+  font-weight: 400;
+}
+
+.topbar-badge {
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--text-sub);
+  border: 1px solid var(--border2);
+  padding: 5px 12px;
+  border-radius: 2px;
+}
+
+/* ── MODE SELECTOR ── */
+.mode-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+  animation: fadeDown .6s .08s ease both;
+  opacity: 0;
+  animation-fill-mode: both;
+}
+
+.mode-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 16px;
+  cursor: pointer;
+  text-align: left;
+  transition: all .25s;
+  font-family: 'Noto Sans JP', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.mode-btn::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--gold2));
+  transform: scaleX(0);
+  transition: transform .25s;
+}
+
+.mode-btn:hover { border-color: var(--border2); background: var(--surface2); }
+.mode-btn:hover::before { transform: scaleX(1); }
+.mode-btn.active { border-color: var(--gold-dim); background: var(--gold-pale); }
+.mode-btn.active::before { transform: scaleX(1); }
+
+.mode-label {
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--text-sub);
+  margin-bottom: 4px;
+}
+
+.mode-title {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text);
+}
+
+/* ── FILTERS ── */
+.filter-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  animation: fadeDown .6s .12s ease both;
+  opacity: 0;
+  animation-fill-mode: both;
+}
+
+.filter-btn {
+  padding: 5px 14px;
+  border-radius: 2px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: all .2s;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+.filter-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+.filter-btn.active {
+  background: var(--gold-pale);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* ── PROGRESS ── */
+.progress-wrap {
+  margin-bottom: 16px;
+  animation: fadeDown .6s .16s ease both;
+  opacity: 0;
+  animation-fill-mode: both;
+}
+
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-sub);
+  letter-spacing: .06em;
+  margin-bottom: 8px;
+}
+
+.progress-track {
+  height: 1px;
+  background: var(--border);
+  position: relative;
+  overflow: visible;
+}
+
+.progress-fill {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold2));
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold2);
+  box-shadow: 0 0 8px var(--gold);
+  opacity: 0;
+  transition: opacity .3s;
+}
+
+.progress-fill.active::after { opacity: 1; }
+
+/* ── STATS ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 24px;
+  animation: fadeDown .6s .2s ease both;
+  opacity: 0;
+  animation-fill-mode: both;
+}
+
+.stat-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px 8px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-chip::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+}
+
+.stat-v {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--gold);
+  line-height: 1;
+  display: block;
+  margin-bottom: 4px;
+  transition: transform .2s;
+}
+
+.stat-chip.bump .stat-v { animation: bump .3s cubic-bezier(.34,1.56,.64,1); }
+
+.stat-l {
+  font-size: 9px;
+  color: var(--text-sub);
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+/* ── QUIZ CARD ── */
+.quiz-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  animation: cardIn .45s cubic-bezier(.2,.8,.2,1) both;
+  position: relative;
+}
+
+.quiz-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 10%, var(--gold-dim) 50%, transparent 90%);
+}
+
+.card-header {
+  padding: 20px 24px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cat-tag {
+  font-size: 9px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.cat-tag.greeting { background: #0d1a10; color: #5a9a6a; border: 1px solid #1a3020; }
+.cat-tag.wine     { background: #1a1008; color: #c9943a; border: 1px solid #3a2010; }
+.cat-tag.food     { background: #1a0808; color: #c96a5a; border: 1px solid #3a1010; }
+.cat-tag.ops      { background: #080d1a; color: #5a7ac9; border: 1px solid #101830; }
+.cat-tag.team     { background: #120a1a; color: #9a6ac9; border: 1px solid #221030; }
+.cat-tag.trouble  { background: #1a0a0a; color: #c95a5a; border: 1px solid #3a1010; }
+
+.diff-row { display: flex; gap: 4px; margin-left: auto; }
+
+.diff-pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border2);
+  transition: background .3s;
+}
+
+.diff-pip.on { background: var(--gold); box-shadow: 0 0 4px var(--gold); }
+
+.card-body { padding: 22px 24px 28px; }
+
+.question-text {
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--text);
+  margin-bottom: 22px;
+  font-weight: 300;
+}
+
+.multi-note {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: .1em;
+  border: 1px solid var(--gold-dim);
+  padding: 3px 10px;
+  border-radius: 2px;
+  margin-bottom: 14px;
+  background: var(--gold-pale);
+}
+
+/* ── OPTIONS ── */
+.options { display: flex; flex-direction: column; gap: 8px; }
+
+.opt-btn {
+  width: 100%;
+  text-align: left;
+  padding: 14px 18px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  line-height: 1.7;
+  position: relative;
+  overflow: hidden;
+}
+
+.opt-btn::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--gold);
+  transform: scaleY(0);
+  transition: transform .2s;
+  transform-origin: center;
+}
+
+.opt-btn:hover:not(:disabled) {
+  border-color: var(--gold-dim);
+  background: var(--gold-pale);
+  color: var(--text);
+}
+
+.opt-btn:hover:not(:disabled)::before { transform: scaleY(1); }
+
+.opt-letter {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--gold);
+  flex-shrink: 0;
+  min-width: 18px;
+  line-height: 1.4;
+  opacity: .7;
+  transition: opacity .2s;
+}
+
+.opt-btn:hover:not(:disabled) .opt-letter { opacity: 1; }
+
+.opt-btn:disabled { cursor: default; }
+
+.opt-btn.selected {
+  border-color: var(--gold-dim);
+  background: var(--gold-pale);
+}
+.opt-btn.selected::before { transform: scaleY(1); }
+.opt-btn.selected .opt-letter { opacity: 1; }
+
+.opt-btn.correct {
+  border-color: var(--correct-border);
+  background: var(--correct-pale);
+  animation: correctPulse .4s ease both;
+}
+.opt-btn.correct::before { transform: scaleY(1); background: var(--correct); }
+.opt-btn.correct .opt-letter { color: var(--correct); opacity: 1; }
+
+.opt-btn.wrong {
+  border-color: var(--wrong-border);
+  background: var(--wrong-pale);
+}
+.opt-btn.wrong::before { transform: scaleY(1); background: var(--wrong); }
+.opt-btn.wrong .opt-letter { color: var(--wrong); opacity: 1; }
+
+.opt-btn.dim { opacity: .25; }
+
+/* ── SUBMIT ── */
+.submit-btn {
+  margin-top: 14px;
+  width: 100%;
+  padding: 13px;
+  border-radius: 4px;
+  border: 1px solid var(--gold-dim);
+  background: var(--gold-pale);
+  color: var(--gold);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: .12em;
+  transition: all .25s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: var(--gold);
+  color: var(--bg);
+  border-color: var(--gold);
+}
+
+.submit-btn:disabled { opacity: .3; cursor: default; }
+
+/* ── FEEDBACK ── */
+.feedback {
+  margin-top: 20px;
+  animation: fadeUp .35s ease both;
+}
+
+.result-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 2px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  margin-bottom: 14px;
+  animation: pillIn .35s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+.result-pill.ok {
+  background: var(--correct-pale);
+  color: #6ac97a;
+  border: 1px solid var(--correct-border);
+}
+
+.result-pill.ng {
+  background: var(--wrong-pale);
+  color: #c97a7a;
+  border: 1px solid var(--wrong-border);
+}
+
+.explain-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--gold-dim);
+  border-radius: 0 4px 4px 0;
+  padding: 16px 18px;
+}
+
+.explain-label {
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+  opacity: .7;
+}
+
+.explain-text {
+  font-size: 12px;
+  line-height: 1.9;
+  color: var(--text-sub);
+  font-weight: 300;
+}
+
+.next-btn {
+  margin-top: 16px;
+  width: 100%;
+  padding: 15px;
+  border-radius: 4px;
+  border: 1px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  letter-spacing: .15em;
+  transition: all .25s;
+  animation: fadeUp .3s .1s ease both;
+  opacity: 0;
+  animation-fill-mode: both;
+  position: relative;
+  overflow: hidden;
+}
+
+.next-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  transform: translateX(-100%);
+  transition: transform .3s ease;
+  z-index: 0;
+}
+
+.next-btn:hover::before { transform: translateX(0); }
+.next-btn:hover { color: var(--bg); }
+.next-btn span { position: relative; z-index: 1; }
+
+/* ── FINAL ── */
+.final {
+  text-align: center;
+  padding: 60px 16px 40px;
+  animation: fadeUp .6s ease both;
+}
+
+.final-ornament {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  color: var(--gold);
+  letter-spacing: .4em;
+  margin-bottom: 32px;
+  opacity: .6;
+}
+
+.final-circle {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-dim);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 32px;
+  background: radial-gradient(ellipse at center, var(--gold-pale) 0%, transparent 70%);
+  position: relative;
+}
+
+.final-circle::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+}
+
+.final-circle::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  opacity: .4;
+}
+
+.final-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 56px;
+  font-weight: 300;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.final-denom {
+  font-size: 12px;
+  color: var(--text-sub);
+  letter-spacing: .1em;
+  margin-top: 4px;
+}
+
+.final-rank {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text);
+  margin-bottom: 16px;
+  letter-spacing: .04em;
+}
+
+.final-divider {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  margin: 0 auto 20px;
+}
+
+.final-msg {
+  font-size: 13px;
+  color: var(--text-sub);
+  line-height: 2;
+  max-width: 380px;
+  margin: 0 auto 36px;
+  font-weight: 300;
+}
+
+.restart-btn {
+  padding: 13px 48px;
+  border-radius: 2px;
+  border: 1px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  cursor: pointer;
+  letter-spacing: .2em;
+  transition: all .25s;
+}
+
+.restart-btn:hover {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+/* ── EMPTY ── */
+.empty-msg {
+  text-align: center;
+  padding: 60px 0;
+  color: var(--text-sub);
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 2;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(20px) scale(.99); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes correctPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(74,140,92,.4); }
+  50%  { box-shadow: 0 0 0 6px rgba(74,140,92,0); }
+  100% { box-shadow: none; }
+}
+@keyframes pillIn {
+  from { opacity: 0; transform: scale(.9) translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes bump {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.hidden { display: none !important; }
+
+@media (max-width: 480px) {
+  .card-body { padding: 18px 18px 24px; }
+  .card-header { padding: 18px 18px 0; }
+  .question-text { font-size: 14px; }
+  .mode-selector { grid-template-columns: 1fr; }
+  .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand-block">
+      <div class="brand-en">Brasserie · Solamachi</div>
+      <div class="brand-ja"><span>AUX AMIS</span> サービス道場</div>
+    </div>
+    <div class="topbar-badge">Service Training</div>
+  </div>
+
+  <div class="mode-selector">
+    <button class="mode-btn active" data-mode="cat" onclick="setMode('cat',this)">
+      <div class="mode-label">Mode A</div>
+      <div class="mode-title">カテゴリ別に練習</div>
+    </button>
+    <button class="mode-btn" data-mode="diff" onclick="setMode('diff',this)">
+      <div class="mode-label">Mode B</div>
+      <div class="mode-title">難易度別に練習</div>
+    </button>
+  </div>
+
+  <div class="filter-row" id="filter-row"></div>
+
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span id="prog-label">問題 1 / 1</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-chip" id="chip-correct"><span class="stat-v" id="s-correct">0</span><span class="stat-l">正解</span></div>
+    <div class="stat-chip" id="chip-wrong"><span class="stat-v" id="s-wrong">0</span><span class="stat-l">不正解</span></div>
+    <div class="stat-chip" id="chip-streak"><span class="stat-v" id="s-streak">0</span><span class="stat-l">連続正解</span></div>
+  </div>
+
+  <div id="quiz-area"></div>
+
+  <div id="final" class="final hidden">
+    <div class="final-ornament">— Résultat —</div>
+    <div class="final-circle">
+      <div class="final-num" id="f-num">0</div>
+      <div class="final-denom" id="f-denom">/ 0</div>
+    </div>
+    <div class="final-rank" id="f-rank"></div>
+    <div class="final-divider"></div>
+    <p class="final-msg" id="f-msg"></p>
+    <button class="restart-btn" onclick="restart()">もう一度やる</button>
+  </div>
+
+</div>
+<script>
+const BANK = [
+
+  // ══════════════════════════════
+  // 言葉遣い・敬語 (8問)
+  // ══════════════════════════════
+  {
+    cat:'greeting', catLabel:'言葉遣い・敬語', diff:1, multi:false,
+    q:'お客様が来店されました。最初にかける言葉として正しいのはどれか？',
+    opts:['いらっしゃいませ','こんにちは〜！','やあ、いらっしゃい！','どうぞ！'],
+    ans:[0],
+    exp:'「いらっしゃいませ」はどんな業態でも接客の基本となる第一声です。語尾を伸ばしたり、タメ口に近い表現はカジュアルすぎる印象を与えます。'
+  },
+  {
+    cat:'greeting', catLabel:'言葉遣い・敬語', diff:1, multi:false,
+    q:'予約のお客様が「19時に〇〇で予約しています」と伝えてきました。次にすべきことはどれか？',
+    opts:['「少々お待ちください」と言ってその場を離れる','予約表を確認し、該当予約があれば「お待ちしておりました」と伝え、名前と人数を確認してご案内する','「何名様ですか？」とまず人数を聞く','すぐに席に案内する'],
+    ans:[1],
+    exp:'AUX AMISでは予約表を確認し、「お待ちしておりました」と伝えてから名前と人数を確認してご案内するのが基本の流れです。予約表の確認なしにすぐ案内するのは誤案内のリスクがあります。'
+  },
+  {
+    cat:'greeting', catLabel:'言葉遣い・敬語', diff:1, multi:false,
+    q:'注文を取りに行くベストなタイミングはどれか？',
+    opts:['お客様が手を挙げてから','メニューをお渡しして一定時間が経ったら','お客様がメニューを閉じた、または目が合ったタイミング','お連れ様との会話が落ち着いてから'],
+    ans:[2],
+    exp:'お客様が手を挙げるのを待つのは、その時点でお客様を待たせていることになります。メニューを閉じる・目が合うなどのサインを見逃さず、先手を打って声をかけることが大切です。'
+  },
+  {
+    cat:'greeting', catLabel:'言葉遣い・敬語', diff:1, multi:false,
+    q:'お客様から「ありがとう、おいしかったよ」と言われました。NGな返し方はどれか？',
+    opts:['ありがとうございます、またぜひお越しください！','恐縮でございます、またのお越しをお待ちしております。','どういたしまして！','ありがとうございます、シェフに伝えます。'],
+    ans:[2],
+    exp:'「どういたしまして」はお客様に使う言葉ではありません。また料理を作ったのはキッチンであり、キッチンへのリスペクトが欠けた返答はNGです。「ありがとうございます」「シェフに伝えます」など、感謝を正しく受け取る表現を使いましょう。'
+  },
+  {
+    cat:'greeting', catLabel:'言葉遣い・敬語', diff:2, multi:false,
+    q:'お客様が話しかけてきたのに、手が離せない状況です。どう対応するのがベストか？',
+    opts:['無視して作業を続ける','「すみません、今すぐ対応できないので少し待ってください」と言う','目を合わせて「少々お待ちください」と伝え、できる限り早く向かう','お客様への声かけをせず、近くの同僚に任せて自分は作業を続ける'],
+    ans:[2],
+    exp:'お客様の最大の不満は「無視された感覚」です。まず目を合わせて「少々お待ちください」と伝えることで、「認識している」というサインを出すことが最優先。その後で自分が向かうか同僚に引き継ぐかを判断します。'
+  },
+  {
+    cat:'greeting', catLabel:'言葉遣い・敬語', diff:2, multi:false,
+    q:'次のうち二重敬語として誤りとされる表現はどれか？',
+    opts:['ご注文を確認させていただきます','お下げしてもよろしいでしょうか','ご覧になられますか','お伺いしてもよろしいでしょうか'],
+    ans:[2],
+    exp:'「ご覧になられますか」は「ご覧になる（尊敬語）＋られる（尊敬）」の二重敬語です。正しくは「ご覧になりますか」。丁寧にしようとするほど誤りが生じやすいので注意しましょう。'
+  },
+  {
+    cat:'greeting', catLabel:'言葉遣い・敬語', diff:2, multi:false,
+    q:'ふらっと立ち寄ったお客様から「予約ってできますか？」と聞かれました。適切な対応をすべて選べ。',
+    opts:['「はい、お電話・ネット・ご来店にて承っております」と伝える','「できますよ」とだけ答えてその場を離れる','「私にはわかりかねますので社員に聞いてください」と言う','「少々お待ちください」と言って社員に確認してから答える'],
+    ans:[0,3], multi:true,
+    exp:'予約方法を正確に案内できる場合はAが最善。分からない場合は社員に確認してから正確に伝えるDも正解です。「できますよ」とだけ言って情報を与えないBや、お客様に確認作業を押し付けるCはNGです。'
+  },
+  {
+    cat:'greeting', catLabel:'言葉遣い・敬語', diff:3, multi:false,
+    q:'一人で対応しきれない状況になっています。助けを求めるタイミングとして正しいのはどれか？',
+    opts:['完全にパンクしてから声をかける','余裕がなくなりそうだと感じた時点で早めに声をかける','社員に言われてから動く','他のスタッフも忙しそうなので遠慮して一人で抱える'],
+    ans:[1],
+    exp:'助けを求めるのは完全にパンクしてからでは遅い。余裕がなくなりそうだと感じた時点で早めに声をかけることが大切です。ただし他のスタッフも忙しい場合は手伝えないこともあるので、その前提で自分でもこなせるよう準備しておくことが重要です。'
+  },
+
+  // ══════════════════════════════
+  // ワイン提供の基本動作 (9問)
+  // ══════════════════════════════
+  {
+    cat:'wine', catLabel:'ワイン提供の基本動作', diff:1, multi:false,
+    q:'グラスワインをテーブルに持っていく際、最もよい対応はどれか？',
+    opts:['何も言わずそっと置く','「お待たせしました」とだけ言って置く','「〇〇のワインです」とワイン名を伝えながら置く','「どうぞ」とだけ言って置く'],
+    ans:[2],
+    exp:'ワインの知識がなくても、ワイン名を伝えるだけで「何が来たか」をお客様に伝えられます。何も言わずに置くのは、お客様が自分の注文かどうか確認できず不安を与えます。'
+  },
+  {
+    cat:'wine', catLabel:'ワイン提供の基本動作', diff:1, multi:false,
+    q:'グラスワインを注ぐとき、一般的に適切な量はどのくらいか？',
+    opts:['グラスの縁ぎりぎりまで','グラスの8割程度','グラスの1/3〜1/2程度','お客様の好みを聞いてから注ぐ'],
+    ans:[2],
+    exp:'ワインはグラスの1/3〜1/2が一般的な適量です。香りがグラスの中で対流するスペースを残すためでもあり、見た目の美しさにもつながります。縁まで注ぐのはNGです。'
+  },
+  {
+    cat:'wine', catLabel:'ワイン提供の基本動作', diff:1, multi:false,
+    q:'ワインを注ぎ終わった後の所作として正しいのはどれか？',
+    opts:['そのままテーブルに置く','瓶を手前に回しながら引き、口をセルヴィエットで拭く','素早く引けばよい','グラスから離してから引く'],
+    ans:[1],
+    exp:'注ぎ終わりにそのまま瓶を引くと、口からワインが垂れてテーブルを汚します。瓶を軽く手前に回転させながら引いた後、セルヴィエットで口元を拭くことで清潔な状態を保てます。'
+  },
+  {
+    cat:'wine', catLabel:'ワイン提供の基本動作', diff:2, multi:false,
+    q:'お客様のグラスが空に近づいています。理想のタイミングで声をかけるならどれか？',
+    opts:['完全に空になってから','残り1/4〜1/3くらいのタイミングで「いかがでしょうか？」と声をかける','お客様が手を挙げてから','食事が終わってから'],
+    ans:[1],
+    exp:'グラスが完全に空になってから声をかけると、お客様はすでに喉が渇いて待っている状態になりがちです。残り少なくなったタイミングで先手を打つのがベストです。'
+  },
+  {
+    cat:'wine', catLabel:'ワイン提供の基本動作', diff:2, multi:false,
+    q:'ボトルワインを注ぐ際、グラスを持ち上げようとするお客様への正しい対応はどれか？',
+    opts:['グラスを持ち上げてもらったまま注ぐ','「そのままで大丈夫ですよ」と伝え、テーブルに置いたまま注ぐ','お客様の好意なのでそのまま受け入れる','どちらでもよい'],
+    ans:[1],
+    exp:'ワインはテーブルに置いたまま注ぐのが基本所作。グラスを持ち上げてもらうと注ぎにくく、こぼすリスクも上がります。「そのままで大丈夫ですよ」はお客様への気遣いにもなる一言です。'
+  },
+  {
+    cat:'wine', catLabel:'ワイン提供の基本動作', diff:2, multi:false,
+    q:'お客様からボトルワインの注文を承りました。最初にすべきことはどれか？',
+    opts:['すぐにボトルを取りに行く','社員に伝えてボトルをもらう','お客様にテイスティングするか確認する','グラスをテーブルに用意する'],
+    ans:[1],
+    exp:'AUX AMISではアルバイトがボトル注文を受けた場合、まず社員に伝えてボトルをもらうのが最初のステップです。自己判断でボトルを取りに行くと、銘柄や在庫の確認が抜ける可能性があります。'
+  },
+  {
+    cat:'wine', catLabel:'ワイン提供の基本動作', diff:2, multi:false,
+    q:'ボトルワインをお客様にお持ちする前にプレゼンテーションを行う目的として正しいのはどれか？',
+    opts:['ワインの説明をするため','注文いただいたボトルに間違いがないかお客様に確認していただくため','ワインの温度を確認するため','お客様にボトルを選んでもらうため'],
+    ans:[1],
+    exp:'プレゼンテーションの最大の目的は「注文と合っているか」をお客様に確認していただくことです。抜栓前に確認することで、万が一の誤りをその場で防ぐことができます。'
+  },
+  {
+    cat:'wine', catLabel:'ワイン提供の基本動作', diff:3, multi:false,
+    q:'ボトルワインの抜栓の手順として正しい順番はどれか？',
+    opts:['キャップシールを剥がす→コルクを抜く→セルヴィエットで口元を拭く→セルヴィエットで一度拭く','キャップシールを剥がす→セルヴィエットで一度拭く→コルクを抜く→セルヴィエットで口元を拭く','コルクを抜く→キャップシールを剥がす→セルヴィエットで口元を拭く→セルヴィエットで一度拭く','キャップシールを剥がす→コルクを抜く→セルヴィエットで口元を拭く'],
+    ans:[1],
+    exp:'キャップシールを剥がした後、コルクを抜く前にセルヴィエットで一度拭くのは、長期間保存されていたボトルのコルク周辺にカビや汚れが付着している可能性があるためです。そのままコルクを抜くとその汚れがワインに混入するリスクがあります。抜栓後も口元を拭いて清潔な状態でお客様にご提供しましょう。'
+  },
+  {
+    cat:'wine', catLabel:'ワイン提供の基本動作', diff:3, multi:false,
+    q:'お客様がテイスティングをされた場合、テイスティング後に注ぐ順番として正しいのはどれか？',
+    opts:['注文者から注ぎ、次に他のお客様へ注ぐ','注文者以外から注ぎ、最後に注文者へ注ぐ','一番年上のお客様から注ぐ','座席順に注ぐ'],
+    ans:[1],
+    exp:'テイスティング後は注文者以外のお客様から先に注ぎ、最後に注文者へ注ぐのが正式なサービスの流れです。注文者が最後なのは、テイスティングで品質を確認した方が責任を持って最後にいただくという意味合いがあります。'
+  },
+
+  // ══════════════════════════════
+  // 料理説明・提案 (5問)
+  // ══════════════════════════════
+  {
+    cat:'food', catLabel:'料理説明・提案', diff:1, multi:false,
+    q:'お客様から「おすすめは何ですか？」と聞かれました。最もよい対応はどれか？',
+    opts:['「全部おすすめです！」と答える','「お肉とお魚どちらがお好きですか？」など切り口を与え、お客様の嗜好や希望に合ったお料理を提案する','スペシャリテを提案する','理由を何も添えずメニューを指さして「これとかどうですか」と言う'],
+    ans:[1],
+    exp:'「全部おすすめ」はお客様の決断を助けない最悪の答えです。まずお客様の嗜好や希望を引き出す切り口を提供し、その上でお客様に合ったお料理を提案することが大切です。スペシャリテの提案はその選択肢の一つではありますが、まず嗜好を確認することが先決です。'
+  },
+  {
+    cat:'food', catLabel:'料理説明・提案', diff:2, multi:false,
+    q:'お客様にメニューをお渡しした際、アレルギーがあると伺いました。次にすべき対応として正しいのはどれか？',
+    opts:['「メニューに記載がございます」と伝える','「大丈夫だと思います」と答える','該当しそうな料理がないかその場で確認し、ある場合はキッチンまたは社員に詳細を確認する','社員に丸投げする'],
+    ans:[2],
+    exp:'AUX AMISではメニューをお渡しした段階でアレルギーや召し上がれないものを確認するのが基本です。該当しそうな料理がある場合はその場で確認し、必要であればキッチンや社員に詳細を確認します。「大丈夫だと思います」などの曖昧な答えは健康に関わるため絶対にNGです。'
+  },
+  {
+    cat:'food', catLabel:'料理説明・提案', diff:2, multi:false,
+    q:'お客様から「ボリュームはどのくらいですか？」と聞かれましたが、把握していません。正しい対応はどれか？',
+    opts:['「普通くらいです」と答える','「少々お待ちください」と言いキッチンまたは社員に確認してから正確に答える','「食べてみればわかります」と言う','「お二人でシェアもできる量だと思います」と答える'],
+    ans:[1],
+    exp:'お客様の質問には常に100点満点の回答を目指してください。知らない場合は曖昧な情報を伝えるのではなく、必ずキッチンや社員に確認してから正確にお伝えすることがAUX AMISのスタンダードです。'
+  },
+  {
+    cat:'food', catLabel:'料理説明・提案', diff:3, multi:false,
+    q:'お客様の食事のペースが速く、キッチンの準備が追いついていません。アルバイトとして正しい対応はどれか？',
+    opts:['とりあえずお客様に何も伝えず待たせる','状況を社員に共有し、対応を相談する','お客様に「少々お待ちください」とだけ伝えてその場を離れる','次の料理を早く出すようキッチンに直接指示する'],
+    ans:[1],
+    exp:'キッチンへの直接指示はアルバイトの範疇を超えています。まず社員に状況を共有し、対応を相談するのが正しい動き方です。お客様への声かけも社員と連携した上で行いましょう。'
+  },
+  {
+    cat:'food', catLabel:'料理説明・提案', diff:3, multi:false,
+    q:'お客様から「記念日なのでデザートプレートをお願いできますか？」と飛び込みで依頼されました。正しい対応はどれか？',
+    opts:['「予約時のみの対応となっております」と断る','「少々お待ちください」と伝え、社員に確認してから対応する','「難しいです」と答える','自分の判断で勝手に断る'],
+    ans:[1],
+    exp:'AUX AMISではデザートプレートへのメッセージサービスがあります。飛び込みの依頼であっても基本的に対応しています。自分の判断で断るのではなく、まず社員に確認してからお客様に回答するのが正しい対応です。'
+  },
+
+  // ══════════════════════════════
+  // オペレーション (5問)
+  // ══════════════════════════════
+  {
+    cat:'ops', catLabel:'オペレーション', diff:1, multi:false,
+    q:'複数のテーブルを見ているとき、最初に対応すべきお客様はどれか？',
+    opts:['一番早く来たお客様','一番大きい声で呼んでいるお客様','待ち時間が一番長いお客様','一番近くにいるお客様'],
+    ans:[2],
+    exp:'声の大きさや近さで動いてしまうと、静かに待っているお客様に大きな不満が積もります。全テーブルの状況を俯瞰して「待ち時間が長い順」に優先するのが基本です。'
+  },
+  {
+    cat:'ops', catLabel:'オペレーション', diff:1, multi:false,
+    q:'キッチンからベルが鳴りましたが、今別のテーブルの対応中です。どうしますか？',
+    opts:['今の対応を途中でやめてすぐキッチンに向かう','近くにいる同僚にキッチンへ向かってもらうよう声をかける','対応が終わってからキッチンに向かう','社員が気づくまで待つ'],
+    ans:[1],
+    exp:'一人で全部やろうとしないことが複数テーブル対応の鉄則。近くの同僚に「キッチンお願い」と一言伝えるだけで、料理が冷める・お客様が待つという問題を防げます。'
+  },
+  {
+    cat:'ops', catLabel:'オペレーション', diff:2, multi:false,
+    q:'お皿を下げるタイミングとして正しいのはどれか？',
+    opts:['料理が終わったと思ったらすぐに下げる','テーブル全員が食べ終わったのを確認してから「お下げしてよろしいでしょうか？」と聞いて下げる','お客様が呼んでから下げる','食事時間が一定以上経過したら下げる'],
+    ans:[1],
+    exp:'全員分を確認してから声をかけるのが基本。一人だけ食べ終わっていないのに下げ始めると「急かされた」印象になります。「よろしいでしょうか？」のひと言がお客様にとっての安心感につながります。'
+  },
+  {
+    cat:'ops', catLabel:'オペレーション', diff:2, multi:false,
+    q:'自分のエリアが忙しい中、他のエリアのお客様が困っている様子です。どうしますか？',
+    opts:['他のエリアなので関係ない','自分のエリアのお客様を疎かにしない範囲で、困っているお客様に声をかける','全部一人で抱えようとする','社員に全部丸投げする'],
+    ans:[1],
+    exp:'AUX AMISはエリア制ですが、他のエリアのお客様への対応も歓迎されます。ただし自分のエリアのお客様を疎かにすることは許されません。両方のバランスを取りながら動くことが大切です。'
+  },
+  {
+    cat:'ops', catLabel:'オペレーション', diff:3, multi:false,
+    q:'新しいお客様が来店したが、自分は今テーブルの対応中で案内できません。この時の正しい対応はどれか？',
+    opts:['新規客は常に最優先なので今の対応を中断する','今対応中のお客様を一区切りつけてから案内する、または空いているスタッフに声かけする','とりあえずその場で待たせる','無視して自分の対応を続ける'],
+    ans:[1],
+    exp:'来店されたお客様も、今対応中のお客様もどちらも大切です。今の対応を唐突に中断するのも失礼ですし、来店客を放置するのも失礼。一区切りつけてから案内するか、空いている同僚に声をかけて引き継ぐのが正解です。'
+  },
+
+  // ══════════════════════════════
+  // スタッフ連携 (8問)
+  // ══════════════════════════════
+  {
+    cat:'team', catLabel:'スタッフ連携', diff:1, multi:false,
+    q:'社員から急に「〇番テーブルお願い」と指示が来ました。最もよい対応はどれか？',
+    opts:['今自分がやっていることを全て止めてすぐ向かう','今やっていることを素早く切り上げ、できる限り早く向かう','「今忙しいので後で」と伝える','他のスタッフに任せる'],
+    ans:[1],
+    exp:'現場では至急の指示が多いため、確認より先に動くことが求められます。ただし今やっていることを突然止めるとお客様への対応が途切れるため、素早く切り上げてから向かうのがベストです。'
+  },
+  {
+    cat:'team', catLabel:'スタッフ連携', diff:1, multi:false,
+    q:'社員から指示を受けましたが、意図が分かりませんでした。どうしますか？',
+    opts:['とりあえず自分の判断で動く','指示を無視する','その場で簡潔に確認する','他のスタッフに聞く'],
+    ans:[2],
+    exp:'接客に関わる指示は時間の猶予がない場合がほとんどです。意図が分からない場合はその場で簡潔に確認しましょう。「手の空いたタイミングで確認しよう」では間に合わないことがあります。'
+  },
+  {
+    cat:'team', catLabel:'スタッフ連携', diff:2, multi:false,
+    q:'担当しているテーブルのお客様から特別なリクエストを受けました。どう対応しますか？',
+    opts:['自分の判断で対応する','社員に共有し、対応を相談する','お客様に「できません」と伝える','他のアルバイトに相談する'],
+    ans:[1],
+    exp:'特別なリクエストはアルバイトが独断で判断するのではなく、社員に共有して対応を相談するのが基本です。自己判断で動くと店のオペレーションと食い違うことがあります。'
+  },
+  {
+    cat:'team', catLabel:'スタッフ連携', diff:2, multi:false,
+    q:'自分がミスをしてしまいました。最もよい対応はどれか？',
+    opts:['自分で解決しようとする','隠してそのまま続ける','すぐに社員に報告する','シフトが終わってから報告する'],
+    ans:[2],
+    exp:'ミスをしたら即報告が鉄則。自力解決しようとすると二次被害が起きやすく、社員が知らないまま問題が拡大します。飲食店では特にスピードが命です。報告が早いほど対応の選択肢が広がります。'
+  },
+  {
+    cat:'team', catLabel:'スタッフ連携', diff:2, multi:false,
+    q:'繁忙時、手が回らない状況になっています。社員への報告タイミングとして正しいのはどれか？',
+    opts:['完全にパンクしてから報告する','余裕がなくなりそうだと感じた時点で早めに報告する','シフトが終わってから報告する','社員が気づくまで待つ'],
+    ans:[1],
+    exp:'「完全にパンクしてから」では対応が遅れます。余裕がなくなりそうだと感じた時点で早めに報告することで、社員が先手を打って対応できます。早めの報告が店全体のオペレーションを守ります。'
+  },
+  {
+    cat:'team', catLabel:'スタッフ連携', diff:2, multi:true,
+    q:'社員に聞きたいことがありますが、社員がお客様対応中です。NGな対応をすべて選べ。',
+    opts:['お客様対応が終わるのを少し離れたところで待つ','「すみません」と割り込んで聞く','緊急でなければメモしておいて後で聞く','社員のそばに立ってじっと待つ'],
+    ans:[1,3],
+    exp:'お客様対応中の社員に割り込むのはNGです。また社員のそばに立ってじっと待つのも、社員とお客様の双方にプレッシャーを与えます。少し離れたところで待つか、緊急でなければメモしておいて後で確認しましょう。'
+  },
+  {
+    cat:'team', catLabel:'スタッフ連携', diff:3, multi:false,
+    q:'自分が間違えて別のテーブルに料理を出してしまいました。最初にすべきことはどれか？',
+    opts:['そのまま知らないふりをする','お客様に謝り、すぐに社員に報告する','自分で解決しようと次の料理を無料サービスする','正しいテーブルからお皿を回収して移す'],
+    ans:[1],
+    exp:'ミスをしたらまずお客様に謝罪し、即座に社員に報告するのが鉄則。自力解決しようとすると判断ミスが重なりやすく、問題が拡大します。その後の対応は社員が判断します。'
+  },
+  {
+    cat:'team', catLabel:'スタッフ連携', diff:3, multi:false,
+    q:'忙しい時間帯に、後輩のバイトが明らかにパニックになっています。NGな対応はどれか？',
+    opts:['状況を見て声をかけ、一緒に優先順位を整理する','自分も忙しいので気づかないふりをして放置する','手伝えそうな社員に状況を共有する','緊急性が高い場合は自分が代わりに対応する'],
+    ans:[1],
+    exp:'状況に応じてB・C・Dはいずれも正解になり得ます。緊急性が低ければ声をかけて整理を手伝う、自分が対応中なら社員に共有する、緊急性が高ければ自分が代わりに対応するのがベストです。放置だけは絶対にNGです。'
+  },
+
+  // ══════════════════════════════
+  // クレーム・突発対応 (4問)
+  // ══════════════════════════════
+  {
+    cat:'trouble', catLabel:'クレーム・突発対応', diff:1, multi:false,
+    q:'お客様から「注文と違うものが来た」と言われました。正しい対応の順番はどれか？',
+    opts:['すぐにキッチンに取りに行く','お客様に謝罪し、伝票を確認してから内容に関わらず社員に報告する','「そんなことはないはずです」と否定する','社員を呼んで全て任せる'],
+    ans:[1],
+    exp:'まずお客様に謝罪し、伝票を確認することで事実確認を行います。伝票が合っていても間違っていても、一旦社員に報告するのがAUX AMISの正しい対応です。間違いがあった場合は再度お客様に謝罪し、お待ちいただくようお伝えします。'
+  },
+  {
+    cat:'trouble', catLabel:'クレーム・突発対応', diff:1, multi:false,
+    q:'お客様が「料理が遅い」とイライラしています。一番最初にすべきことはどれか？',
+    opts:['「すぐ出ます！」と根拠なく言う','まず謝罪し、状況を確認してから社員に報告する','「混んでいるので仕方ない」と説明する','社員を呼んで全て任せる'],
+    ans:[1],
+    exp:'「すぐ出ます」は根拠のない約束で、守れないとさらに怒りを招きます。まず謝罪してから状況を確認し、社員に報告して適切な対応を取ることが大切です。「確認してまいります」の一言がお客様の信頼を守ります。'
+  },
+  {
+    cat:'trouble', catLabel:'クレーム・突発対応', diff:2, multi:false,
+    q:'お客様が注文したボトルワインが在庫切れでした。アルバイトとして正しい対応はどれか？',
+    opts:['「ないです」とだけ伝える','お客様に謝罪してないことを伝え、社員に代替提案をしてもらうよう依頼する','自分で似たワインを探して提案する','「別のを頼んでください」と言う'],
+    ans:[1],
+    exp:'在庫切れをお客様にお伝えすることはアルバイトでもできます。ただし代替提案にはワインの知識が必要なため、社員に依頼するのがお客様への最善の対応です。「社員にご提案させます」と一言添えることで、お客様に安心感を与えられます。'
+  },
+  {
+    cat:'trouble', catLabel:'クレーム・突発対応', diff:2, multi:false,
+    q:'お客様から料理やワインに異物が入っていると指摘されました。正しい対応はどれか？',
+    opts:['「そんなはずはありません」と否定する','まず謝罪し、料理やワインを下げて社員にすぐ報告する','「取り除けばよいですか？」と聞く','「申し訳ありません」と言いながらそのまま残す'],
+    ans:[1],
+    exp:'異物混入は最も深刻なクレームの一つです。否定・言い訳は絶対NGです。まず謝罪してお皿やグラスを下げ、即座に社員に報告します。その後の対応（作り直し・返金等）は社員が判断します。'
+  },
+
+];
+
+let mode='cat', activeFilter='all', pool=[], idx=0, correct=0, wrong=0, streak=0, answered=false, selectedOpts=[];
+
+const CATS=[
+  {key:'all',label:'すべて'},
+  {key:'greeting',label:'言葉遣い・敬語'},
+  {key:'wine',label:'ワイン提供'},
+  {key:'food',label:'料理説明・提案'},
+  {key:'ops',label:'オペレーション'},
+  {key:'team',label:'スタッフ連携'},
+  {key:'trouble',label:'クレーム対応'},
+];
+const DIFFS=[
+  {key:'all',label:'すべて'},
+  {key:'1',label:'やさしい'},
+  {key:'2',label:'ふつう'},
+  {key:'3',label:'むずかしい'},
+];
+
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function buildPool(){
+  let base=BANK;
+  if(mode==='cat'&&activeFilter!=='all') base=base.filter(q=>q.cat===activeFilter);
+  if(mode==='diff'&&activeFilter!=='all') base=base.filter(q=>String(q.diff)===activeFilter);
+  pool=shuffle(base);
+}
+
+function setMode(m,el){
+  mode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  activeFilter='all';
+  renderFilters();
+  restart(false);
+}
+
+function renderFilters(){
+  const items=mode==='cat'?CATS:DIFFS;
+  document.getElementById('filter-row').innerHTML=items.map(f=>`
+    <button class="filter-btn ${f.key===activeFilter?'active':''}" data-key="${f.key}" onclick="applyFilter('${f.key}',this)">${f.label}</button>
+  `).join('');
+}
+
+function applyFilter(key,el){
+  activeFilter=key;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  restart(false);
+}
+
+function restart(rf=true){
+  if(rf){activeFilter='all';renderFilters();}
+  idx=0;correct=0;wrong=0;streak=0;answered=false;selectedOpts=[];
+  buildPool();
+  document.getElementById('final').classList.add('hidden');
+  updateStats();render();
+}
+
+function bumpChip(id){
+  const el=document.getElementById(id);
+  el.classList.remove('bump');
+  void el.offsetWidth;
+  el.classList.add('bump');
+  setTimeout(()=>el.classList.remove('bump'),400);
+}
+
+function updateStats(){
+  document.getElementById('s-correct').textContent=correct;
+  document.getElementById('s-wrong').textContent=wrong;
+  document.getElementById('s-streak').textContent=streak;
+  const t=pool.length,pct=t?Math.round((idx/t)*100):0;
+  document.getElementById('prog-label').textContent=`問題 ${Math.min(idx+1,t)} / ${t}`;
+  document.getElementById('prog-pct').textContent=pct+'%';
+  const fill=document.getElementById('prog-fill');
+  fill.style.width=pct+'%';
+  fill.classList.toggle('active', pct>0 && pct<100);
+}
+
+function render(){
+  const area=document.getElementById('quiz-area');
+  if(!pool.length){
+    area.innerHTML=`<div class="empty-msg">このフィルターには問題がありません。<br>別のカテゴリを選んでください。</div>`;
+    return;
+  }
+  if(idx>=pool.length){showFinal();area.innerHTML='';return;}
+  const q=pool[idx],L=['A','B','C','D'];
+  const pips=[1,2,3].map(n=>`<div class="diff-pip ${n<=q.diff?'on':''}"></div>`).join('');
+  const multiNote=q.multi?`<div class="multi-note">※ 複数選択可</div>`:'';
+
+  area.innerHTML=`
+    <div class="quiz-card">
+      <div class="card-header">
+        <span class="cat-tag ${q.cat}">${q.catLabel}</span>
+        <div class="diff-row">${pips}</div>
+      </div>
+      <div class="card-body">
+        <p class="question-text">${q.q}</p>
+        ${multiNote}
+        <div class="options" id="opts">
+          ${q.opts.map((o,i)=>`
+            <button class="opt-btn" id="opt${i}" onclick="${q.multi?`toggleOpt(${i})`:`pick(${i})`}">
+              <span class="opt-letter">${L[i]}.</span>
+              <span>${o}</span>
+            </button>
+          `).join('')}
+        </div>
+        ${q.multi?`<button class="submit-btn" id="submit-btn" onclick="submitMulti()" disabled>回答する</button>`:''}
+        <div id="fb"></div>
+      </div>
+    </div>`;
+  answered=false;
+  selectedOpts=[];
+}
+
+function toggleOpt(i){
+  if(answered)return;
+  const btn=document.getElementById('opt'+i);
+  const pos=selectedOpts.indexOf(i);
+  if(pos===-1){selectedOpts.push(i);btn.classList.add('selected');}
+  else{selectedOpts.splice(pos,1);btn.classList.remove('selected');}
+  document.getElementById('submit-btn').disabled=selectedOpts.length===0;
+}
+
+function submitMulti(){
+  if(answered||selectedOpts.length===0)return;
+  const q=pool[idx];
+  const ok=q.ans.slice().sort().join(',')===selectedOpts.slice().sort().join(',');
+  showFeedback(ok,q);
+}
+
+function pick(sel){
+  if(answered)return;
+  const q=pool[idx];
+  showFeedback(q.ans.includes(sel),q,sel);
+}
+
+function showFeedback(ok,q,sel){
+  answered=true;
+  const L=['A','B','C','D'];
+  ok?correct++:wrong++;
+  streak=ok?streak+1:0;
+  updateStats();
+  bumpChip(ok?'chip-correct':'chip-wrong');
+  if(ok&&streak>1) bumpChip('chip-streak');
+
+  document.querySelectorAll('.opt-btn').forEach((b,i)=>{
+    b.disabled=true;
+    b.classList.remove('selected');
+    if(q.ans.includes(i)) b.classList.add('correct');
+    else if(q.multi?selectedOpts.includes(i):i===sel) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+
+  const correctLabels=q.ans.map(i=>L[i]).join('・');
+  document.getElementById('fb').innerHTML=`
+    <div class="feedback">
+      <div class="result-pill ${ok?'ok':'ng'}">${ok?'✓ 正解':'✗ 不正解 — 正解は '+correctLabels}</div>
+      <div class="explain-box">
+        <div class="explain-label">Explication</div>
+        <p class="explain-text">${q.exp}</p>
+      </div>
+      <button class="next-btn" onclick="next()"><span>${idx+1<pool.length?'次の問題へ →':'結果を見る →'}</span></button>
+    </div>`;
+
+  const sb=document.getElementById('submit-btn');
+  if(sb) sb.style.display='none';
+}
+
+function next(){idx++;updateStats();render();}
+
+function showFinal(){
+  document.getElementById('final').classList.remove('hidden');
+  const t=pool.length,pct=t?Math.round((correct/t)*100):0;
+  document.getElementById('f-num').textContent=correct;
+  document.getElementById('f-denom').textContent='/ '+t;
+  const ranks=[
+    [100,'Chef de Service','完璧です。全問正解はAUX AMISの接客を完全に体得している証拠。ぜひ後輩の指導役として活躍してください。'],
+    [80,"Maître d'hôtel",'素晴らしい！基本の動きと判断力がしっかり身についています。苦手な問題を振り返って、次は満点を狙いましょう。'],
+    [60,'Serveur Confirmé','合格ラインです。知識の土台はできています。つまずいたカテゴリに絞って繰り返し練習しましょう。'],
+    [40,'Commis de salle','まだ伸びしろがたくさんあります。カテゴリ別モードで一つずつ確実にクリアしていきましょう。'],
+    [0,'Apprenti','ここからがスタートです。まず「言葉遣い・敬語」と「オペレーション」から始めると、毎日の仕事がすぐ変わります。'],
+  ];
+  const [,rank,msg]=ranks.find(([min])=>pct>=min);
+  document.getElementById('f-rank').textContent=rank;
+  document.getElementById('f-msg').textContent=msg;
+  document.getElementById('prog-fill').style.width='100%';
+}
+
+renderFilters();buildPool();updateStats();render();
+</script>
+</body>
+</html>
