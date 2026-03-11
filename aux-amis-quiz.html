@@ -8,28 +8,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:        #0a0a0a;
-  --surface:   #111111;
-  --surface2:  #181818;
-  --surface3:  #222222;
-  --border:    #2a2a2a;
-  --border2:   #333333;
-  --text:      #e8e0d0;
+  --bg:        #f7f4ef;
+  --surface:   #ffffff;
+  --surface2:  #f0ece4;
+  --surface3:  #e8e2d8;
+  --border:    #e0d8cc;
+  --border2:   #ccc4b4;
+  --text:      #1e1a14;
   --text-sub:  #7a7060;
-  --text-dim:  #3a3530;
-  --gold:      #c9a84c;
-  --gold2:     #e8c87a;
-  --gold-dim:  #3a2e18;
-  --gold-pale: #1a1508;
-  --correct:   #4a8c5c;
-  --correct-pale: #0a1f10;
-  --correct-border: #2a5c3a;
-  --wrong:     #8c4a4a;
-  --wrong-pale:#1f0a0a;
-  --wrong-border: #5c2a2a;
+  --text-dim:  #c0b8a8;
+  --gold:      #b8963a;
+  --gold2:     #d4aa50;
+  --gold-dim:  #d4c090;
+  --gold-pale: #faf5e8;
+  --accent:    #2a4a35;
+  --correct:   #2a6640;
+  --correct-pale: #e8f5ed;
+  --correct-border: #a0d0b0;
+  --wrong:     #8b2a2a;
+  --wrong-pale: #f5e8e8;
+  --wrong-border: #d0a0a0;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: #f7f4ef; }
 
 body {
   background: var(--bg);
@@ -49,7 +51,7 @@ body::after {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 9999;
-  opacity: .6;
+  opacity: .3;
 }
 
 /* gold line top */
@@ -152,7 +154,7 @@ body::before {
 
 .mode-btn:hover { border-color: var(--border2); background: var(--surface2); }
 .mode-btn:hover::before { transform: scaleX(1); }
-.mode-btn.active { border-color: var(--gold-dim); background: var(--gold-pale); }
+.mode-btn.active { border-color: var(--gold); background: var(--gold-pale); }
 .mode-btn.active::before { transform: scaleX(1); }
 
 .mode-label {
@@ -199,6 +201,7 @@ body::before {
   background: var(--gold-pale);
   border-color: var(--gold);
   color: var(--gold);
+  font-weight: 500;
 }
 
 /* ── PROGRESS ── */
@@ -275,7 +278,8 @@ body::before {
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: .4;
 }
 
 .stat-v {
@@ -313,7 +317,8 @@ body::before {
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent 10%, var(--gold-dim) 50%, transparent 90%);
+  background: linear-gradient(90deg, transparent 10%, var(--gold) 50%, transparent 90%);
+  opacity: .5;
 }
 
 .card-header {
@@ -332,12 +337,12 @@ body::before {
   font-weight: 500;
 }
 
-.cat-tag.greeting { background: #0d1a10; color: #5a9a6a; border: 1px solid #1a3020; }
-.cat-tag.wine     { background: #1a1008; color: #c9943a; border: 1px solid #3a2010; }
-.cat-tag.food     { background: #1a0808; color: #c96a5a; border: 1px solid #3a1010; }
-.cat-tag.ops      { background: #080d1a; color: #5a7ac9; border: 1px solid #101830; }
-.cat-tag.team     { background: #120a1a; color: #9a6ac9; border: 1px solid #221030; }
-.cat-tag.trouble  { background: #1a0a0a; color: #c95a5a; border: 1px solid #3a1010; }
+.cat-tag.greeting { background: #e8f0eb; color: #2a4a35; border: 1px solid #b0d0bc; }
+.cat-tag.wine     { background: #faf4e6; color: #8b6020; border: 1px solid #d4c090; }
+.cat-tag.food     { background: #fdeee8; color: #7a2a18; border: 1px solid #d4a898; }
+.cat-tag.ops      { background: #e8edf5; color: #1a3060; border: 1px solid #a0b4d8; }
+.cat-tag.team     { background: #f0e8f5; color: #4a1a6a; border: 1px solid #c4a0d8; }
+.cat-tag.trouble  { background: #f5e8e8; color: #6a1a1a; border: 1px solid #d4a0a0; }
 
 .diff-row { display: flex; gap: 4px; margin-left: auto; }
 
@@ -349,7 +354,7 @@ body::before {
   transition: background .3s;
 }
 
-.diff-pip.on { background: var(--gold); box-shadow: 0 0 4px var(--gold); }
+.diff-pip.on { background: var(--gold); box-shadow: 0 0 3px var(--gold2); }
 
 .card-body { padding: 22px 24px 28px; }
 
@@ -382,7 +387,7 @@ body::before {
   padding: 14px 18px;
   border-radius: 4px;
   border: 1px solid var(--border);
-  background: var(--surface2);
+  background: var(--bg);
   font-family: 'Noto Sans JP', sans-serif;
   font-size: 13px;
   color: var(--text);
@@ -450,6 +455,7 @@ body::before {
 .opt-btn.wrong {
   border-color: var(--wrong-border);
   background: var(--wrong-pale);
+  animation: wrongShake .4s ease both;
 }
 .opt-btn.wrong::before { transform: scaleY(1); background: var(--wrong); }
 .opt-btn.wrong .opt-letter { color: var(--wrong); opacity: 1; }
@@ -515,7 +521,8 @@ body::before {
 .explain-box {
   background: var(--surface2);
   border: 1px solid var(--border);
-  border-left: 2px solid var(--gold-dim);
+  border-left: 3px solid var(--gold);
+  animation: explainIn .4s .1s cubic-bezier(.2,.8,.2,1) both;
   border-radius: 0 4px 4px 0;
   padding: 16px 18px;
 }
@@ -550,7 +557,7 @@ body::before {
   cursor: pointer;
   letter-spacing: .15em;
   transition: all .25s;
-  animation: fadeUp .3s .1s ease both;
+  animation: fadeUp .4s .18s cubic-bezier(.2,.8,.2,1) both;
   opacity: 0;
   animation-fill-mode: both;
   position: relative;
@@ -592,6 +599,7 @@ body::before {
   height: 160px;
   border-radius: 50%;
   border: 1px solid var(--gold-dim);
+  animation: scaleIn .6s .2s cubic-bezier(.34,1.56,.64,1) both;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -690,44 +698,209 @@ body::before {
 
 /* ── ANIMATIONS ── */
 @keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to   { opacity: 1; transform: none; }
+  from { opacity: 0; transform: translateY(-16px); filter: blur(2px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
 }
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: none; }
+  from { opacity: 0; transform: translateY(12px); filter: blur(1px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
 }
 @keyframes cardIn {
-  from { opacity: 0; transform: translateY(20px) scale(.99); }
-  to   { opacity: 1; transform: none; }
+  0%   { opacity: 0; transform: translateY(28px) scale(.97); filter: blur(3px); }
+  60%  { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes cardOut {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateX(-20px) scale(.98); }
 }
 @keyframes correctPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(74,140,92,.4); }
-  50%  { box-shadow: 0 0 0 6px rgba(74,140,92,0); }
-  100% { box-shadow: none; }
+  0%   { box-shadow: 0 0 0 0 rgba(42,102,64,.35); }
+  40%  { box-shadow: 0 0 0 8px rgba(42,102,64,.1); }
+  100% { box-shadow: 0 0 0 12px rgba(42,102,64,0); }
+}
+@keyframes wrongShake {
+  0%,100% { transform: translateX(0); }
+  20%  { transform: translateX(-6px); }
+  40%  { transform: translateX(5px); }
+  60%  { transform: translateX(-4px); }
+  80%  { transform: translateX(3px); }
 }
 @keyframes pillIn {
-  from { opacity: 0; transform: scale(.9) translateY(4px); }
-  to   { opacity: 1; transform: none; }
+  0%   { opacity: 0; transform: scale(.85) translateY(6px); filter: blur(2px); }
+  70%  { transform: scale(1.03) translateY(-1px); }
+  100% { opacity: 1; transform: none; filter: blur(0); }
 }
 @keyframes bump {
   0%   { transform: scale(1); }
-  50%  { transform: scale(1.2); }
+  40%  { transform: scale(1.25); }
+  70%  { transform: scale(.95); }
   100% { transform: scale(1); }
+}
+@keyframes explainIn {
+  from { opacity: 0; transform: translateY(8px); max-height: 0; }
+  to   { opacity: 1; transform: none; max-height: 400px; }
+}
+@keyframes goldShimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes scaleIn {
+  0%   { transform: scale(0.5); opacity: 0; }
+  60%  { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .hidden { display: none !important; }
 
-@media (max-width: 480px) {
-  .card-body { padding: 18px 18px 24px; }
-  .card-header { padding: 18px 18px 0; }
+@media (max-width: 540px) {
+  .app { padding: 0 14px 80px; }
+  .topbar { padding: 20px 0 16px; margin-bottom: 20px; align-items: center; }
+  .brand-en { font-size: 9px; letter-spacing: .25em; }
+  .brand-ja { font-size: 20px; }
+  .topbar-badge { font-size: 9px; padding: 4px 9px; letter-spacing: .12em; }
+  .mode-selector { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .mode-title { font-size: 12px; }
+  .filter-row { gap: 5px; }
+  .filter-btn { padding: 5px 10px; font-size: 11px; }
+  .stat-v { font-size: 24px; }
+  .stat-l { font-size: 9px; }
+  .card-body { padding: 16px 16px 22px; }
+  .card-header { padding: 16px 16px 0; }
   .question-text { font-size: 14px; }
-  .mode-selector { grid-template-columns: 1fr; }
-  .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .opt-btn { font-size: 13px; padding: 12px 14px; gap: 10px; }
+  .opt-letter { font-size: 16px; }
 }
 </style>
 </head>
 <body>
+<style>
+#pw-screen {
+  position: fixed;
+  inset: 0;
+  background: #f7f4ef;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 32px;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.pw-brand-en {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: .35em;
+  text-transform: uppercase;
+  color: #b8963a;
+  margin-bottom: 6px;
+}
+.pw-brand-ja {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 300;
+  font-style: italic;
+  color: #1e1a14;
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+}
+.pw-brand-ja span { color: #b8963a; }
+.pw-sub {
+  font-size: 11px;
+  color: #7a7060;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  margin-bottom: 48px;
+}
+.pw-divider {
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #b8963a, transparent);
+  margin-bottom: 48px;
+}
+.pw-label {
+  font-size: 11px;
+  color: #7a7060;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  align-self: flex-start;
+  width: 100%;
+  max-width: 280px;
+}
+.pw-input {
+  width: 100%;
+  max-width: 280px;
+  padding: 13px 16px;
+  border: 1.5px solid #e0d8cc;
+  border-radius: 4px;
+  background: #fff;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 15px;
+  color: #1e1a14;
+  outline: none;
+  transition: border-color .2s;
+  margin-bottom: 12px;
+  letter-spacing: .1em;
+}
+.pw-input:focus { border-color: #b8963a; }
+.pw-btn {
+  width: 100%;
+  max-width: 280px;
+  padding: 13px;
+  border: 1.5px solid #b8963a;
+  border-radius: 4px;
+  background: transparent;
+  color: #b8963a;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: .15em;
+  transition: all .25s;
+  margin-bottom: 14px;
+}
+.pw-btn:hover { background: #b8963a; color: #fff; }
+.pw-error {
+  font-size: 12px;
+  color: #8b2a2a;
+  letter-spacing: .05em;
+  height: 18px;
+  transition: opacity .2s;
+}
+</style>
+
+<div id="pw-screen">
+  <div class="pw-brand-en">Brasserie · Solamachi</div>
+  <div class="pw-brand-ja"><span>AUX AMIS</span> サービス道場</div>
+  <div class="pw-sub">Staff Only</div>
+  <div class="pw-divider"></div>
+  <div class="pw-label">パスワード</div>
+  <input class="pw-input" type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPw()">
+  <button class="pw-btn" onclick="checkPw()">入る</button>
+  <div class="pw-error" id="pw-error"></div>
+</div>
+
+<script>
+function checkPw() {
+  const val = document.getElementById('pw-input').value;
+  if (val === 'ozami26') {
+    document.getElementById('pw-screen').style.display = 'none';
+  } else {
+    const err = document.getElementById('pw-error');
+    err.textContent = 'パスワードが違います';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+    setTimeout(() => { err.textContent = ''; }, 2500);
+  }
+}
+</script>
+
 <div class="app">
 
   <div class="topbar">
